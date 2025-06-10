@@ -1,181 +1,336 @@
-# WhatsApp MCP Server
+# StoreHub BackOffice MCP Server
 
-This is a Model Context Protocol (MCP) server for WhatsApp.
+A Model Context Protocol (MCP) server that provides intelligent access to StoreHub BackOffice APIs, enabling natural language queries for business insights, inventory management, sales analytics, and customer insights.
 
-With this you can search and read your personal Whatsapp messages (including images, videos, documents, and audio messages), search your contacts and send messages to either individuals or groups. You can also send media files including images, videos, documents, and audio messages.
+## 🚀 Features
 
-It connects to your **personal WhatsApp account** directly via the Whatsapp web multidevice API (using the [whatsmeow](https://github.com/tulir/whatsmeow) library). All your messages are stored locally in a SQLite database and only sent to an LLM (such as Claude) when the agent accesses them through tools (which you control).
+### 📦 Inventory Management
+- **Real-time stock checking** by product name or SKU
+- **Low stock alerts** with threshold monitoring
+- **Reorder recommendations** based on minimum stock levels
+- **Stock level health indicators**
 
-Here's an example of what you can do when it's connected to Claude.
+### 💰 Sales Analytics
+- **Revenue summaries** with period analysis (today, week, month, custom ranges)
+- **Order metrics** including average order value and daily trends
+- **Top performing products** analysis
+- **Performance insights** and recommendations
 
-![WhatsApp MCP](./example-use.png)
+### 📋 Order Analysis
+- **Order status breakdown** with completion rates
+- **Order value analysis** and patterns
+- **Trend analysis** for operational insights
+- **Peak time identification**
 
-> To get updates on this and other projects I work on [enter your email here](https://docs.google.com/forms/d/1rTF9wMBTN0vPfzWuQa2BjfGKdKIpTbyeKxhPMcEzgyI/preview)
+### 🛍️ Product Performance
+- **Category performance** analysis
+- **Top sellers identification**
+- **Low stock monitoring**
+- **Product overview** with stock summaries
 
-## Installation
+### 👥 Customer Insights
+- **Customer base metrics** and loyalty analysis
+- **Lifetime value** calculations
+- **Repeat purchase patterns**
+- **Spending behavior** analysis
+
+### 👥 Employee Management
+- **Complete Employee Directory**: View all employees with full contact details
+- **Employee Information Tracking**: Names, emails, phone numbers, and IDs
+- **Modification Monitoring**: Track when employee records were created or updated
+- **Filtered Employee Search**: Find employees modified since specific dates
+- **Contact Information Management**: Access comprehensive employee contact data
+
+### ⏰ Timesheet Tracking & Management
+- **Real-Time Timesheet Records**: Access all employee clock-in/out data
+- **Employee-Specific Tracking**: Filter timesheets by individual employees
+- **Store-Based Filtering**: View timesheets for specific store locations
+- **Date Range Analysis**: Search timesheet records across custom date ranges
+- **Automatic Hours Calculation**: Calculate total hours worked per employee
+- **Active Status Detection**: Identify employees currently clocked in
+- **Duration Analytics**: View shift lengths and working time patterns
+
+## 🛠️ Installation & Setup
 
 ### Prerequisites
+- Python 3.8 or higher
+- StoreHub API credentials (API key and Account ID)
 
-- Go
-- Python 3.6+
-- Anthropic Claude Desktop app (or Cursor)
-- UV (Python package manager), install with `curl -LsSf https://astral.sh/uv/install.sh | sh`
-- FFmpeg (_optional_) - Only needed for audio messages. If you want to send audio files as playable WhatsApp voice messages, they must be in `.ogg` Opus format. With FFmpeg installed, the MCP server will automatically convert non-Opus audio files. Without FFmpeg, you can still send raw audio files using the `send_file` tool.
+### Quick Setup
 
-### Steps
-
-1. **Clone this repository**
-
+1. **Clone and setup the project:**
    ```bash
-   git clone https://github.com/lharries/whatsapp-mcp.git
-   cd whatsapp-mcp
+   git clone <repository-url>
+   cd storehub-backoffice-mcp
+   chmod +x setup.sh
+   ./setup.sh
    ```
 
-2. **Run the WhatsApp bridge**
-
-   Navigate to the whatsapp-bridge directory and run the Go application:
-
+2. **Configure your API credentials:**
    ```bash
-   cd whatsapp-bridge
-   go run main.go
+   # Edit the environment file
+   nano storehub-mcp-server/.env
+   
+   # Add your credentials:
+   STOREHUB_API_KEY=your_actual_api_key
+   STOREHUB_ACCOUNT_ID=your_actual_account_id
    ```
 
-   The first time you run it, you will be prompted to scan a QR code. Scan the QR code with your WhatsApp mobile app to authenticate.
+3. **Test the server:**
+   ```bash
+   cd storehub-mcp-server
+   source venv/bin/activate
+   python main.py
+   ```
 
-   After approximately 20 days, you will might need to re-authenticate.
+### Claude Integration
 
-3. **Connect to the MCP server**
+Configure Claude to use this MCP server by adding the configuration to your Claude settings:
 
-   Copy the below json with the appropriate {{PATH}} values:
+```json
+{
+  "mcpServers": {
+    "storehub": {
+      "command": "/path/to/your/storehub-backoffice-mcp/storehub-mcp-server/venv/bin/python3",
+      "args": ["/path/to/your/storehub-backoffice-mcp/storehub-mcp-server/main.py"],
+      "cwd": "/path/to/your/storehub-backoffice-mcp/storehub-mcp-server",
+      "env": {
+        "PYTHONPATH": "/path/to/your/storehub-backoffice-mcp/storehub-mcp-server"
+      }
+    }
+  }
+}
+```
 
+**Note:** The configuration above shows the correct format but uses placeholder paths. Your actual `claude-config.json` file should use your real paths and credentials (which are kept local and not committed to version control).
+
+## 🎯 Usage Examples
+
+Once integrated with Claude, you can ask natural language questions like:
+
+### Inventory Management
+- "Show me current inventory levels and stock alerts"
+- "Which products are out of stock or running low?"
+- "Get inventory summary with reorder recommendations"
+
+### Product Catalog
+- "Show me all products in the catalog"
+- "Find products with 'iPhone' in the name"
+- "Display product details with pricing and variants"
+
+### Sales Analytics
+- "Get sales analytics for the past week"
+- "Show me revenue and transaction data for last month"
+- "Analyze sales performance by channel (online vs in-store)"
+
+### Customer Information
+- "Show me our customer database"
+- "Search for customers with email containing '@gmail.com'"
+- "Display customer information including loyalty data"
+
+### Store Management
+- "Get store information and configuration"
+- "Show me store details and contact information"
+- "Display store locations and addresses"
+
+### Employee Management
+- "Show me all employees in the system"
+- "Get employee information with contact details"
+- "Find employees modified since last week"
+
+### Timesheet Management
+- "Show me all timesheet records"
+- "Get timesheets for a specific employee"
+- "Search timesheets for a date range"
+- "Calculate total hours worked by employee"
+
+## ✅ Real-Time API Integration
+
+The MCP server is now **fully integrated** with live StoreHub APIs! Features include:
+
+### 🔌 Live Data Sources
+- **Inventory API** (`/inventory/{storeId}`) - Real-time stock levels and alerts
+- **Products API** (`/products`) - Complete product catalog with variants
+- **Transactions API** (`/transactions`) - Sales data and analytics  
+- **Customers API** (`/customers`) - Customer information and search
+- **Stores API** (`/stores`) - Store configuration details
+- **Employees API** (`/employees`) - Employee information and management
+- **Timesheets API** (`/timesheets`) - Timesheet records and tracking
+
+### 🛡️ Authentication & Security
+- **Basic HTTP Authentication** using Store ID and API Key
+- **Secure credential management** via environment variables
+- **Rate limiting compliance** (max 3 calls/second)
+- **Error handling** with detailed logging
+
+### 📊 Real-Time Features
+- Live inventory levels with stock alerts
+- Actual sales data and transaction analytics
+- Real customer information and search
+- Current product catalog with pricing
+- Store configuration and details
+- Complete employee directory with contact information
+- Real-time timesheet tracking and hours calculation
+
+All data is retrieved directly from your StoreHub BackOffice in real-time.
+
+
+
+## 🏗️ Architecture
+
+```
+storehub-backoffice-mcp/
+├── storehub-mcp-server/        # Main MCP server
+│   ├── main.py                 # Server implementation
+│   ├── requirements.txt        # Python dependencies
+│   ├── .env.template          # Environment template
+│   └── venv/                  # Virtual environment
+├── setup.sh                   # Setup script
+├── claude-config.json         # Claude configuration (local only)
+└── README.md                  # Documentation
+```
+
+### Key Components
+
+- **MCP Protocol Compliance**: Strict adherence to MCP standards
+- **Async Architecture**: High-performance async/await implementation
+- **Error Handling**: Comprehensive error handling and logging
+- **Employee & Timesheet Management**: Complete HR and time tracking integration
+- **Rich Analytics**: Detailed insights with actionable recommendations
+- **Real-Time Data Processing**: Live synchronization with StoreHub systems
+
+## 🔑 Available Tools
+
+### `get_inventory`
+Get current inventory levels for all products with stock alerts and recommendations.
+
+**Parameters:** None required - returns all inventory data
+
+### `get_products`
+Get complete product catalog with details, pricing, and variants.
+
+**Parameters:**
+- `search_term` (string, optional): Filter products by name or SKU
+
+### `get_sales_analytics`
+Get comprehensive sales analytics and transaction data for specified periods.
+
+**Parameters:**
+- `from_date` (string, optional): Start date (YYYY-MM-DD, defaults to 7 days ago)
+- `to_date` (string, optional): End date (YYYY-MM-DD, defaults to today)
+- `include_online` (boolean, optional): Include online orders (defaults to true)
+
+### `get_customers`
+Get customer information with search and filtering capabilities.
+
+**Parameters:**
+- `search_term` (string, optional): Search by name, email, or phone
+- `limit` (integer, optional): Max customers to return (default: 10, max: 100)
+
+### `get_stores`
+Get store information and configuration details.
+
+**Parameters:** None required - returns all store data
+
+### `get_employees`
+Get all employees with their details including names, email, phone, and modification dates.
+
+**Parameters:**
+- `modified_since` (string, optional): Date in YYYY-MM-DD format to get employees modified since this date
+
+### `search_timesheets`
+Search timesheet records for employees with filtering options for store, employee, and date range.
+
+**Parameters:**
+- `store_id` (string, optional): Store ID to filter timesheets by specific store
+- `employee_id` (string, optional): Employee ID to filter timesheets for specific employee
+- `from_date` (string, optional): Start date in YYYY-MM-DD format to search clock-in records after this time
+- `to_date` (string, optional): End date in YYYY-MM-DD format to search clock-in records before this time
+
+## ⚠️ **IMPORTANT SECURITY NOTE**
+
+**NEVER commit your actual API credentials to version control!**
+
+The included `claude-config.json` file is excluded from version control for security. You must:
+
+1. Configure your credentials via environment variables (.env file)
+2. Update Claude configuration paths to match your local system
+3. Never commit files containing real API keys or credentials
+
+### Local Configuration Steps
+
+1. **Copy and edit the environment template:**
+   ```bash
+   cd storehub-mcp-server
+   cp .env.template .env
+   nano .env  # Add your real credentials here
+   ```
+
+2. **Update `claude-config.json` paths for your system:**
+   ```bash
+   # Edit claude-config.json and update paths to match your local setup
+   nano claude-config.json
+   ```
+
+3. **Example claude-config.json structure:**
    ```json
    {
      "mcpServers": {
-       "whatsapp": {
-         "command": "{{PATH_TO_UV}}", // Run `which uv` and place the output here
-         "args": [
-           "--directory",
-           "{{PATH_TO_SRC}}/whatsapp-mcp/whatsapp-mcp-server", // cd into the repo, run `pwd` and enter the output here + "/whatsapp-mcp-server"
-           "run",
-           "main.py"
-         ]
+       "storehub": {
+         "command": "/path/to/your/storehub-backoffice-mcp/storehub-mcp-server/venv/bin/python3",
+         "args": ["/path/to/your/storehub-backoffice-mcp/storehub-mcp-server/main.py"],
+         "cwd": "/path/to/your/storehub-backoffice-mcp/storehub-mcp-server",
+         "env": {
+           "PYTHONPATH": "/path/to/your/storehub-backoffice-mcp/storehub-mcp-server"
+         }
        }
      }
    }
    ```
 
-   For **Claude**, save this as `claude_desktop_config.json` in your Claude Desktop configuration directory at:
+## 🔒 Security & Configuration
 
-   ```
-   ~/Library/Application Support/Claude/claude_desktop_config.json
-   ```
+### Environment Variables
 
-   For **Cursor**, save this as `mcp.json` in your Cursor configuration directory at:
+| Variable | Description | Required |
+|----------|-------------|----------|
+| `STOREHUB_API_KEY` | Your StoreHub API token | Yes |
+| `STOREHUB_ACCOUNT_ID` | Your account ID (subdomain from BackOffice URL) | Yes |
+| `LOG_LEVEL` | Logging level (INFO, DEBUG, ERROR) | No |
 
-   ```
-   ~/.cursor/mcp.json
-   ```
+### Security Best Practices
 
-4. **Restart Claude Desktop / Cursor**
+- Store API credentials in environment variables only
+- Never commit `.env` files to version control
+- Use HTTPS for all API communications
+- Implement proper API rate limiting
+- Monitor API usage and logs
 
-   Open Claude Desktop and you should now see WhatsApp as an available integration.
+## 🤝 Contributing
 
-   Or restart Cursor.
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Add tests if applicable
+5. Submit a pull request
 
-### Windows Compatibility
+## 📄 License
 
-If you're running this project on Windows, be aware that `go-sqlite3` requires **CGO to be enabled** in order to compile and work properly. By default, **CGO is disabled on Windows**, so you need to explicitly enable it and have a C compiler installed.
+This project is licensed under the MIT License - see the LICENSE file for details.
 
-#### Steps to get it working:
+## 🆘 Support
 
-1. **Install a C compiler**  
-   We recommend using [MSYS2](https://www.msys2.org/) to install a C compiler for Windows. After installing MSYS2, make sure to add the `ucrt64\bin` folder to your `PATH`.  
-   → A step-by-step guide is available [here](https://code.visualstudio.com/docs/cpp/config-mingw).
+For issues, questions, or feature requests:
 
-2. **Enable CGO and run the app**
+1. Check the documentation
+2. Review existing issues
+3. Create a new issue with detailed information
+4. Include logs and error messages when applicable
 
-   ```bash
-   cd whatsapp-bridge
-   go env -w CGO_ENABLED=1
-   go run main.go
-   ```
+## 🔮 Future Enhancements
 
-Without this setup, you'll likely run into errors like:
-
-> `Binary was compiled with 'CGO_ENABLED=0', go-sqlite3 requires cgo to work.`
-
-## Architecture Overview
-
-This application consists of two main components:
-
-1. **Go WhatsApp Bridge** (`whatsapp-bridge/`): A Go application that connects to WhatsApp's web API, handles authentication via QR code, and stores message history in SQLite. It serves as the bridge between WhatsApp and the MCP server.
-
-2. **Python MCP Server** (`whatsapp-mcp-server/`): A Python server implementing the Model Context Protocol (MCP), which provides standardized tools for Claude to interact with WhatsApp data and send/receive messages.
-
-### Data Storage
-
-- All message history is stored in a SQLite database within the `whatsapp-bridge/store/` directory
-- The database maintains tables for chats and messages
-- Messages are indexed for efficient searching and retrieval
-
-## Usage
-
-Once connected, you can interact with your WhatsApp contacts through Claude, leveraging Claude's AI capabilities in your WhatsApp conversations.
-
-### MCP Tools
-
-Claude can access the following tools to interact with WhatsApp:
-
-- **search_contacts**: Search for contacts by name or phone number
-- **list_messages**: Retrieve messages with optional filters and context
-- **list_chats**: List available chats with metadata
-- **get_chat**: Get information about a specific chat
-- **get_direct_chat_by_contact**: Find a direct chat with a specific contact
-- **get_contact_chats**: List all chats involving a specific contact
-- **get_last_interaction**: Get the most recent message with a contact
-- **get_message_context**: Retrieve context around a specific message
-- **send_message**: Send a WhatsApp message to a specified phone number or group JID
-- **send_file**: Send a file (image, video, raw audio, document) to a specified recipient
-- **send_audio_message**: Send an audio file as a WhatsApp voice message (requires the file to be an .ogg opus file or ffmpeg must be installed)
-- **download_media**: Download media from a WhatsApp message and get the local file path
-
-### Media Handling Features
-
-The MCP server supports both sending and receiving various media types:
-
-#### Media Sending
-
-You can send various media types to your WhatsApp contacts:
-
-- **Images, Videos, Documents**: Use the `send_file` tool to share any supported media type.
-- **Voice Messages**: Use the `send_audio_message` tool to send audio files as playable WhatsApp voice messages.
-  - For optimal compatibility, audio files should be in `.ogg` Opus format.
-  - With FFmpeg installed, the system will automatically convert other audio formats (MP3, WAV, etc.) to the required format.
-  - Without FFmpeg, you can still send raw audio files using the `send_file` tool, but they won't appear as playable voice messages.
-
-#### Media Downloading
-
-By default, just the metadata of the media is stored in the local database. The message will indicate that media was sent. To access this media you need to use the download_media tool which takes the `message_id` and `chat_jid` (which are shown when printing messages containing the meda), this downloads the media and then returns the file path which can be then opened or passed to another tool.
-
-## Technical Details
-
-1. Claude sends requests to the Python MCP server
-2. The MCP server queries the Go bridge for WhatsApp data or directly to the SQLite database
-3. The Go accesses the WhatsApp API and keeps the SQLite database up to date
-4. Data flows back through the chain to Claude
-5. When sending messages, the request flows from Claude through the MCP server to the Go bridge and to WhatsApp
-
-## Troubleshooting
-
-- If you encounter permission issues when running uv, you may need to add it to your PATH or use the full path to the executable.
-- Make sure both the Go application and the Python server are running for the integration to work properly.
-
-### Authentication Issues
-
-- **QR Code Not Displaying**: If the QR code doesn't appear, try restarting the authentication script. If issues persist, check if your terminal supports displaying QR codes.
-- **WhatsApp Already Logged In**: If your session is already active, the Go bridge will automatically reconnect without showing a QR code.
-- **Device Limit Reached**: WhatsApp limits the number of linked devices. If you reach this limit, you'll need to remove an existing device from WhatsApp on your phone (Settings > Linked Devices).
-- **No Messages Loading**: After initial authentication, it can take several minutes for your message history to load, especially if you have many chats.
-- **WhatsApp Out of Sync**: If your WhatsApp messages get out of sync with the bridge, delete both database files (`whatsapp-bridge/store/messages.db` and `whatsapp-bridge/store/whatsapp.db`) and restart the bridge to re-authenticate.
-
-For additional Claude Desktop integration troubleshooting, see the [MCP documentation](https://modelcontextprotocol.io/quickstart/server#claude-for-desktop-integration-issues). The documentation includes helpful tips for checking logs and resolving common issues.
+- **Advanced Analytics**: Machine learning insights
+- **Real-time Notifications**: Webhook integration
+- **Multi-store Support**: Manage multiple locations
+- **Custom Dashboards**: Visual analytics integration
+- **API Rate Optimization**: Intelligent caching and batching 
