@@ -124,9 +124,36 @@ Once integrated with Claude, you can ask natural language questions like:
 - "Calculate profit margins for products with cost data"
 
 ### Sales Analytics
-- "Get sales analytics for the past week"
-- "Show me revenue and transaction data for last month"
-- "Analyze sales performance by channel (online vs in-store)"
+- "Get sales analytics for the past week with promotion analysis"
+- "Show me revenue and transaction data with payment method breakdown"
+- "Analyze sales performance by channel with delivery method insights"
+- "Get comprehensive analytics including returns and service charges"
+
+### Online Order Management
+- "Create an online transaction for Shopee with delivery to customer address"
+- "Process a Lazada order with pickup option"
+- "Create custom channel order for dine-in with table service"
+- "Cancel an online transaction due to inventory issues"
+- "Process TikTok Shop order with delivery and tracking information"
+
+### Customer Management
+- "Create a new customer with complete contact information"
+- "Update customer details including address and membership info"
+- "Get detailed customer information by ID including loyalty data"
+- "Search customers by first name, last name, email, or phone"
+- "Add customer tags for segmentation and marketing"
+
+### Transaction Management
+- "Create a new sales transaction with items and payment method"
+- "Process a return transaction with reason tracking"
+- "Cancel a transaction and record the cancellation details"
+- "Create transaction with customer association and employee tracking"
+
+### Advanced Product Search
+- "Find products in Electronics category with price between $100-$500"
+- "Show me only products with stock tracking enabled"
+- "Get products with cost data to analyze profit margins"
+- "Find parent products that have variants in the Clothing category"
 
 ### Customer Information
 - "Show me our customer database"
@@ -181,18 +208,24 @@ The MCP server now provides **comprehensive product information** aligned with t
 - **🔍 Enhanced Search**: Search now works across names, SKUs, AND barcodes
 - **📈 Better Business Insights**: Cost data and margins provide valuable business intelligence
 
-## ✅ Real-Time API Integration
+## ✅ Complete StoreHub API Integration
 
-The MCP server is now **fully integrated** with live StoreHub APIs! Features include:
+The MCP server now provides **comprehensive StoreHub API coverage** with both read and write operations! Features include:
 
-### 🔌 Live Data Sources
+### 🔌 Live Data Sources (Read Operations)
 - **Inventory API** (`/inventory/{storeId}`) - Real-time stock levels and alerts
 - **Products API** (`/products`) - Comprehensive product catalog with complete schema: IDs, barcodes, costs, margins, variants, and tags
-- **Transactions API** (`/transactions`) - Sales data and analytics  
-- **Customers API** (`/customers`) - Customer information and search
+- **Transactions API** (`/transactions`) - Advanced sales analytics with promotions, returns, payment methods, and delivery insights
+- **Customers API** (`/customers`) - Enhanced customer search with firstName, lastName, email, and phone filters
 - **Stores API** (`/stores`) - Store configuration details
 - **Employees API** (`/employees`) - Employee information and management
 - **Timesheets API** (`/timesheets`) - Timesheet records and tracking
+
+### ✍️ Business Operations (Write Operations)
+- **Online Transactions API** (`/onlineTransactions`) - Create and cancel e-commerce orders across LAZADA, SHOPEE, ZALORA, WOOCOMMERCE, SHOPIFY, MAGENTO, TIK_TOK_SHOP, and CUSTOM channels
+- **Customer Management API** (`/customers`) - Create, update, and manage customer records with complete contact information
+- **Transaction Management API** (`/transactions`) - Process sales, returns, and cancellations with full audit trails
+- **Advanced Product Lookup** (`/products/{id}`) - Individual product details and analysis
 
 ### 🛡️ Authentication & Security
 - **Basic HTTP Authentication** using Store ID and API Key
@@ -200,16 +233,31 @@ The MCP server is now **fully integrated** with live StoreHub APIs! Features inc
 - **Rate limiting compliance** (max 3 calls/second)
 - **Error handling** with detailed logging
 
-### 📊 Real-Time Features
-- Live inventory levels with stock alerts
-- Actual sales data and transaction analytics
-- Real customer information and search
-- **Enhanced product catalog with complete details**: pricing, costs, margins, barcodes, variants, and business intelligence
-- Store configuration and details
-- Complete employee directory with contact information
-- Real-time timesheet tracking and hours calculation
+### 📊 Comprehensive Business Management Features
+**Read Operations:**
+- Live inventory levels with stock alerts and reorder recommendations
+- **Advanced sales analytics** with promotions, returns, payment methods, and delivery insights
+- **Enhanced customer search** with firstName, lastName, email, and phone filters
+- **Complete product catalog** with pricing, costs, margins, barcodes, variants, and business intelligence
+- Store configuration and multi-location details
+- Complete employee directory with contact information and modification tracking
+- Real-time timesheet tracking with hours calculation and shift analysis
 
-All data is retrieved directly from your StoreHub BackOffice in real-time.
+**Write Operations:**
+- **E-commerce order processing** across major platforms (LAZADA, SHOPEE, ZALORA, WOOCOMMERCE, SHOPIFY, MAGENTO, TIK_TOK_SHOP)
+- **Complete customer lifecycle management** - create, update, and manage customer records
+- **Full transaction processing** - sales, returns, cancellations with audit trails
+- **Advanced filtering and search** across all data types
+
+**Business Intelligence:**
+- Profit margin analysis and cost tracking
+- Promotion effectiveness and usage analytics
+- Return analysis with reason tracking
+- Payment method performance insights
+- Delivery and fulfillment method analysis
+- Multi-channel performance comparison
+
+All operations are performed directly with your StoreHub BackOffice in real-time with enterprise-grade security and rate limiting.
 
 
 
@@ -248,27 +296,51 @@ Get comprehensive product catalog with complete details including IDs, names, SK
 
 **Parameters:**
 - `search_term` (string, optional): Filter products by name, SKU, or barcode
+- `category` (string, optional): Filter by specific category
+- `min_price` / `max_price` (number, optional): Price range filters
+- `stock_tracked_only` (boolean, optional): Show only products with stock tracking
+- `has_variants` (boolean, optional): Show only parent products with variants
+- `has_cost_data` (boolean, optional): Show only products with cost information
 
 **Enhanced Features:**
 - Complete StoreHub API Product Schema alignment
+- Advanced filtering and search capabilities
 - Profit margin calculation when cost data available
 - Full variant group details for parent products
 - Variant value relationships for child products
 - Comprehensive business intelligence statistics
 
+### `get_product_by_id`
+Get detailed information for a specific product by ID including complete variant information, pricing, and stock details.
+
+**Parameters:**
+- `productId` (string, required): Product ID to retrieve detailed information for
+
 ### `get_sales_analytics`
-Get comprehensive sales analytics and transaction data for specified periods.
+Get comprehensive sales analytics and transaction data with advanced insights including promotions, returns, payment methods, and delivery analysis.
 
 **Parameters:**
 - `from_date` (string, optional): Start date (YYYY-MM-DD, defaults to 7 days ago)
 - `to_date` (string, optional): End date (YYYY-MM-DD, defaults to today)
 - `include_online` (boolean, optional): Include online orders (defaults to true)
 
+**Enhanced Analytics:**
+- Promotion effectiveness and usage analysis
+- Service charge and shipping fee breakdown
+- Delivery and fulfillment method performance
+- Return analysis with reason tracking
+- Payment method distribution and insights
+- Channel-specific performance comparison
+
 ### `get_customers`
-Get customer information with search and filtering capabilities.
+Get customer information with enhanced search and filtering capabilities using StoreHub API parameters.
 
 **Parameters:**
-- `search_term` (string, optional): Search by name, email, or phone
+- `search_term` (string, optional): General search by name, email, or phone
+- `firstName` (string, optional): Search by first name (begins with)
+- `lastName` (string, optional): Search by last name (begins with)
+- `email` (string, optional): Search by email (contains)
+- `phone` (string, optional): Search by phone (contains)
 - `limit` (integer, optional): Max customers to return (default: 10, max: 100)
 
 ### `get_stores`
@@ -291,7 +363,76 @@ Search timesheet records for employees with filtering options for store, employe
 - `from_date` (string, optional): Start date in YYYY-MM-DD format to search clock-in records after this time
 - `to_date` (string, optional): End date in YYYY-MM-DD format to search clock-in records before this time
 
+## 🛒 Online Order Management Tools
 
+### `create_online_transaction`
+Create online transactions for e-commerce platforms with multi-channel support.
+
+**Parameters:**
+- `refId` (string, required): Unique marketplace identifier
+- `storeId` (string, required): Store ID for this transaction
+- `channel` (string, required): Platform - LAZADA, SHOPEE, ZALORA, WOOCOMMERCE, SHOPIFY, TIK_TOK_SHOP, MAGENTO, CUSTOM
+- `shippingType` (string, required): Shipping method - delivery, pickup, dineIn, takeaway
+- `total` / `subTotal` (number, required): Transaction amounts
+- `items` (array, required): Order items with product details
+- `customerRefId` (string, optional): Customer reference ID
+- `deliveryAddress` (object, optional): Delivery address for delivery orders
+
+### `cancel_online_transaction`
+Cancel online transactions with proper audit trail.
+
+**Parameters:**
+- `refId` (string, required): Reference ID of transaction to cancel
+- `cancelledTime` (string, optional): Cancellation timestamp (defaults to current time)
+
+## 👥 Customer Management Tools
+
+### `create_customer`
+Create new customers with complete contact details and membership information.
+
+**Parameters:**
+- `refId` (string, required): Unique customer reference ID (UUID)
+- `firstName` / `lastName` (string, required): Customer name
+- `email` / `phone` (string, optional): Contact information
+- `address1` / `city` / `state` / `postalCode` (string, optional): Address details
+- `memberId` (string, optional): Member ID for loyalty program
+- `tags` (array, optional): Customer tags for segmentation
+
+### `update_customer`
+Update existing customer information with validation.
+
+**Parameters:**
+- `refId` (string, required): Customer reference ID to update
+- `firstName` / `lastName` (string, required): Updated name
+- All optional fields from create_customer for updates
+
+### `get_customer_by_id`
+Get detailed information for a specific customer including loyalty data.
+
+**Parameters:**
+- `refId` (string, required): Customer reference ID to retrieve
+
+## 💳 Transaction Management Tools
+
+### `create_transaction`
+Create new sales or return transactions with complete item and payment details.
+
+**Parameters:**
+- `refId` (string, required): Unique transaction reference ID
+- `storeId` (string, required): Store ID for this transaction
+- `transactionType` (string, required): Sale or Return
+- `total` / `subTotal` (number, required): Transaction amounts
+- `paymentMethod` (string, required): Cash or CreditCard
+- `items` (array, required): Transaction items with product details
+- `customerRefId` / `employeeId` (string, optional): Association IDs
+
+### `cancel_transaction`
+Cancel existing sales transactions with proper audit trail.
+
+**Parameters:**
+- `refId` (string, required): Reference ID of transaction to cancel
+- `cancelledTime` (string, optional): Cancellation timestamp (defaults to current time)
+- `cancelledBy` (string, optional): Employee ID who cancelled the transaction
 
 ## 🔒 Security & Configuration
 
@@ -322,10 +463,20 @@ For issues, questions, or feature requests:
 3. Create a new issue with detailed information
 4. Include logs and error messages when applicable
 
+## ✅ Recently Completed (Major Release)
+
+- **✅ Complete Online Order Management**: Multi-channel e-commerce support
+- **✅ Full Customer Lifecycle Management**: Create, update, search customers
+- **✅ Comprehensive Transaction Processing**: Sales, returns, cancellations
+- **✅ Advanced Sales Analytics**: Promotions, returns, payments, delivery insights
+- **✅ Enhanced Product Catalog**: Complete schema, filtering, profit margins
+- **✅ Write Operations**: Transform from read-only to full business management
+
 ## 🔮 Future Enhancements
 
-- **Advanced Analytics**: Machine learning insights
-- **Real-time Notifications**: Webhook integration
-- **Multi-store Support**: Manage multiple locations
-- **Custom Dashboards**: Visual analytics integration
-- **API Rate Optimization**: Intelligent caching and batching 
+- **Machine Learning Insights**: Predictive analytics and trend forecasting
+- **Real-time Notifications**: Webhook integration for instant updates
+- **Advanced Multi-store Management**: Cross-location inventory and reporting
+- **Custom Dashboards**: Visual analytics and KPI monitoring
+- **Advanced Automation**: Intelligent reordering and customer engagement
+- **Integration Ecosystem**: Connect with accounting, CRM, and marketing platforms 

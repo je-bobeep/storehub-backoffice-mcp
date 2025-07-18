@@ -209,6 +209,30 @@ async def list_tools() -> List[Tool]:
                     "search_term": {
                         "type": "string",
                         "description": "Optional search term to filter products by name, SKU, or barcode"
+                    },
+                    "category": {
+                        "type": "string",
+                        "description": "Optional category filter to show products from specific category"
+                    },
+                    "min_price": {
+                        "type": "number",
+                        "description": "Optional minimum price filter"
+                    },
+                    "max_price": {
+                        "type": "number", 
+                        "description": "Optional maximum price filter"
+                    },
+                    "stock_tracked_only": {
+                        "type": "boolean",
+                        "description": "Optional filter to show only products with stock tracking enabled"
+                    },
+                    "has_variants": {
+                        "type": "boolean",
+                        "description": "Optional filter to show only parent products with variants"
+                    },
+                    "has_cost_data": {
+                        "type": "boolean",
+                        "description": "Optional filter to show only products with cost information"
                     }
                 },
                 "additionalProperties": False
@@ -238,13 +262,29 @@ async def list_tools() -> List[Tool]:
         ),
         Tool(
             name="get_customers",
-            description="Get customer information and search customers by various criteria.",
+            description="Get customer information and search customers by various criteria including firstName, lastName, email, and phone.",
             inputSchema={
                 "type": "object",
                 "properties": {
                     "search_term": {
                         "type": "string",
-                        "description": "Search by customer name, email, or phone number"
+                        "description": "General search by customer name, email, or phone number"
+                    },
+                    "firstName": {
+                        "type": "string",
+                        "description": "Search by first name (returns customers whose first name begins with this value)"
+                    },
+                    "lastName": {
+                        "type": "string",
+                        "description": "Search by last name (returns customers whose last name begins with this value)"
+                    },
+                    "email": {
+                        "type": "string",
+                        "description": "Search by email (returns customers whose email contains this value)"
+                    },
+                    "phone": {
+                        "type": "string",
+                        "description": "Search by phone number (returns customers whose phone contains this value)"
                     },
                     "limit": {
                         "type": "integer",
@@ -312,6 +352,282 @@ async def list_tools() -> List[Tool]:
                 },
                 "additionalProperties": False
             }
+        ),
+        Tool(
+            name="create_online_transaction",
+            description="Create online transactions for e-commerce platforms including LAZADA, SHOPEE, ZALORA, WOOCOMMERCE, SHOPIFY, MAGENTO, TIK_TOK_SHOP, and CUSTOM channels with support for delivery, pickup, dineIn, and takeaway.",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "refId": {
+                        "type": "string",
+                        "description": "Unique marketplace identifier for the transaction"
+                    },
+                    "storeId": {
+                        "type": "string", 
+                        "description": "Store ID for this transaction"
+                    },
+                    "channel": {
+                        "type": "string",
+                        "description": "Platform channel: LAZADA, SHOPEE, ZALORA, WOOCOMMERCE, SHOPIFY, TIK_TOK_SHOP, MAGENTO, CUSTOM",
+                        "enum": ["LAZADA", "SHOPEE", "ZALORA", "WOOCOMMERCE", "SHOPIFY", "TIK_TOK_SHOP", "MAGENTO", "CUSTOM"]
+                    },
+                    "shippingType": {
+                        "type": "string",
+                        "description": "Shipping method: delivery, pickup, dineIn, takeaway (dineIn/takeaway only for CUSTOM)",
+                        "enum": ["delivery", "pickup", "dineIn", "takeaway"]
+                    },
+                    "total": {
+                        "type": "number",
+                        "description": "Total transaction amount"
+                    },
+                    "subTotal": {
+                        "type": "number", 
+                        "description": "Subtotal before tax and fees"
+                    },
+                    "items": {
+                        "type": "array",
+                        "description": "Array of order items with productId, quantity, pricing"
+                    },
+                    "customerRefId": {
+                        "type": "string",
+                        "description": "Optional customer reference ID"
+                    },
+                    "deliveryAddress": {
+                        "type": "object",
+                        "description": "Delivery address (required for delivery shipping type)"
+                    }
+                },
+                "required": ["refId", "storeId", "channel", "shippingType", "total", "subTotal", "items"],
+                "additionalProperties": False
+            }
+        ),
+        Tool(
+            name="cancel_online_transaction", 
+            description="Cancel online transactions by reference ID with proper audit trail.",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "refId": {
+                        "type": "string",
+                        "description": "Reference ID of the online transaction to cancel"
+                    },
+                    "cancelledTime": {
+                        "type": "string",
+                        "description": "Cancellation timestamp in ISO format (defaults to current time if not provided)"
+                    }
+                },
+                "required": ["refId"],
+                "additionalProperties": False
+            }
+        ),
+        Tool(
+            name="create_customer",
+            description="Create new customers with complete contact details, addresses, membership information, and tags.",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "refId": {
+                        "type": "string",
+                        "description": "Unique customer reference ID (UUID format)"
+                    },
+                    "firstName": {
+                        "type": "string",
+                        "description": "Customer's first name"
+                    },
+                    "lastName": {
+                        "type": "string", 
+                        "description": "Customer's last name"
+                    },
+                    "email": {
+                        "type": "string",
+                        "description": "Customer's email address"
+                    },
+                    "phone": {
+                        "type": "string",
+                        "description": "Customer's phone number"
+                    },
+                    "address1": {
+                        "type": "string",
+                        "description": "Street address line 1"
+                    },
+                    "city": {
+                        "type": "string",
+                        "description": "City"
+                    },
+                    "state": {
+                        "type": "string",
+                        "description": "State/Province"
+                    },
+                    "postalCode": {
+                        "type": "string",
+                        "description": "Postal/ZIP code"
+                    },
+                    "memberId": {
+                        "type": "string",
+                        "description": "Member ID for loyalty program"
+                    },
+                    "tags": {
+                        "type": "array",
+                        "description": "Customer tags for segmentation"
+                    }
+                },
+                "required": ["refId", "firstName", "lastName"],
+                "additionalProperties": False
+            }
+        ),
+        Tool(
+            name="update_customer",
+            description="Update existing customer information including contact details, addresses, and tags.",
+            inputSchema={
+                "type": "object", 
+                "properties": {
+                    "refId": {
+                        "type": "string",
+                        "description": "Customer reference ID to update"
+                    },
+                    "firstName": {
+                        "type": "string",
+                        "description": "Updated first name"
+                    },
+                    "lastName": {
+                        "type": "string",
+                        "description": "Updated last name"
+                    },
+                    "email": {
+                        "type": "string",
+                        "description": "Updated email address"
+                    },
+                    "phone": {
+                        "type": "string",
+                        "description": "Updated phone number"
+                    },
+                    "address1": {
+                        "type": "string",
+                        "description": "Updated street address line 1"
+                    },
+                    "city": {
+                        "type": "string",
+                        "description": "Updated city"
+                    },
+                    "state": {
+                        "type": "string",
+                        "description": "Updated state/Province"
+                    },
+                    "postalCode": {
+                        "type": "string",
+                        "description": "Updated postal/ZIP code"
+                    },
+                    "tags": {
+                        "type": "array",
+                        "description": "Updated customer tags"
+                    }
+                },
+                "required": ["refId", "firstName", "lastName"],
+                "additionalProperties": False
+            }
+        ),
+        Tool(
+            name="get_customer_by_id",
+            description="Get detailed information for a specific customer by reference ID including loyalty data and transaction history.",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "refId": {
+                        "type": "string",
+                        "description": "Customer reference ID to retrieve"
+                    }
+                },
+                "required": ["refId"],
+                "additionalProperties": False
+            }
+        ),
+        Tool(
+            name="get_product_by_id",
+            description="Get detailed information for a specific product by ID including complete variant information, pricing, and stock details.",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "productId": {
+                        "type": "string",
+                        "description": "Product ID to retrieve detailed information for"
+                    }
+                },
+                "required": ["productId"],
+                "additionalProperties": False
+            }
+        ),
+        Tool(
+            name="create_transaction",
+            description="Create new sales or return transactions with item details, payments, and customer association.",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "refId": {
+                        "type": "string",
+                        "description": "Unique transaction reference ID"
+                    },
+                    "storeId": {
+                        "type": "string",
+                        "description": "Store ID for this transaction"
+                    },
+                    "transactionType": {
+                        "type": "string",
+                        "description": "Transaction type: Sale or Return",
+                        "enum": ["Sale", "Return"]
+                    },
+                    "total": {
+                        "type": "number",
+                        "description": "Total transaction amount"
+                    },
+                    "subTotal": {
+                        "type": "number",
+                        "description": "Subtotal before tax and discounts"
+                    },
+                    "paymentMethod": {
+                        "type": "string",
+                        "description": "Payment method: Cash or CreditCard",
+                        "enum": ["Cash", "CreditCard"]
+                    },
+                    "items": {
+                        "type": "array",
+                        "description": "Array of transaction items with product details"
+                    },
+                    "customerRefId": {
+                        "type": "string",
+                        "description": "Optional customer reference ID"
+                    },
+                    "employeeId": {
+                        "type": "string",
+                        "description": "Employee processing the transaction"
+                    }
+                },
+                "required": ["refId", "storeId", "transactionType", "total", "subTotal", "paymentMethod", "items"],
+                "additionalProperties": False
+            }
+        ),
+        Tool(
+            name="cancel_transaction",
+            description="Cancel existing sales transactions with proper audit trail and reason tracking.",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "refId": {
+                        "type": "string", 
+                        "description": "Reference ID of transaction to cancel"
+                    },
+                    "cancelledTime": {
+                        "type": "string",
+                        "description": "Cancellation timestamp in ISO format (defaults to current time)"
+                    },
+                    "cancelledBy": {
+                        "type": "string",
+                        "description": "Employee ID who cancelled the transaction"
+                    }
+                },
+                "required": ["refId"],
+                "additionalProperties": False
+            }
         )
     ]
 
@@ -336,6 +652,22 @@ async def call_tool(name: str, arguments: Dict[str, Any]) -> List[TextContent]:
             return await handle_get_employees(arguments)
         elif name == "search_timesheets":
             return await handle_search_timesheets(arguments)
+        elif name == "create_online_transaction":
+            return await handle_create_online_transaction(arguments)
+        elif name == "cancel_online_transaction":
+            return await handle_cancel_online_transaction(arguments)
+        elif name == "create_customer":
+            return await handle_create_customer(arguments)
+        elif name == "update_customer":
+            return await handle_update_customer(arguments)
+        elif name == "get_customer_by_id":
+            return await handle_get_customer_by_id(arguments)
+        elif name == "get_product_by_id":
+            return await handle_get_product_by_id(arguments)
+        elif name == "create_transaction":
+            return await handle_create_transaction(arguments)
+        elif name == "cancel_transaction":
+            return await handle_cancel_transaction(arguments)
         else:
             return [TextContent(type="text", text=f"Unknown tool: {name}")]
             
@@ -422,6 +754,12 @@ async def handle_get_products(arguments: Dict[str, Any]) -> List[TextContent]:
     """Get products using StoreHub API"""
     try:
         search_term = arguments.get("search_term", "").lower()
+        category_filter = arguments.get("category")
+        min_price = arguments.get("min_price")
+        max_price = arguments.get("max_price")
+        stock_tracked_only = arguments.get("stock_tracked_only")
+        has_variants = arguments.get("has_variants")
+        has_cost_data = arguments.get("has_cost_data")
         
         # Get all products
         products_data = await make_api_request("/products")
@@ -429,23 +767,98 @@ async def handle_get_products(arguments: Dict[str, Any]) -> List[TextContent]:
         if not products_data:
             return [TextContent(type="text", text="📦 No products found.")]
         
-        # Filter by search term if provided
-        if search_term:
-            filtered_products = []
-            for product in products_data:
+        # Apply all filters
+        filtered_products = []
+        for product in products_data:
+            # Search term filter
+            if search_term:
                 name = product.get("name", "").lower()
                 sku = product.get("sku", "").lower()
                 barcode = product.get("barcode", "").lower()
-                if search_term in name or search_term in sku or search_term in barcode:
-                    filtered_products.append(product)
-            products_data = filtered_products
+                if not (search_term in name or search_term in sku or search_term in barcode):
+                    continue
+            
+            # Category filter
+            if category_filter:
+                product_category = product.get("category", "")
+                if product_category.lower() != category_filter.lower():
+                    continue
+            
+            # Price range filters
+            price = product.get("unitPrice", 0)
+            if min_price is not None and price < min_price:
+                continue
+            if max_price is not None and price > max_price:
+                continue
+            
+            # Stock tracking filter
+            if stock_tracked_only is not None:
+                track_stock = product.get("trackStockLevel", False)
+                if stock_tracked_only and not track_stock:
+                    continue
+                if not stock_tracked_only and track_stock:
+                    continue
+            
+            # Variants filter
+            if has_variants is not None:
+                is_parent = product.get("isParentProduct", False)
+                if has_variants and not is_parent:
+                    continue
+                if not has_variants and is_parent:
+                    continue
+            
+            # Cost data filter
+            if has_cost_data is not None:
+                has_cost = product.get("cost") is not None
+                if has_cost_data and not has_cost:
+                    continue
+                if not has_cost_data and has_cost:
+                    continue
+            
+            filtered_products.append(product)
+        
+        products_data = filtered_products
         
         if not products_data:
-            return [TextContent(type="text", text=f"📦 No products found matching '{search_term}'.")]
+            filter_description = []
+            if search_term:
+                filter_description.append(f"search term '{search_term}'")
+            if category_filter:
+                filter_description.append(f"category '{category_filter}'")
+            if min_price is not None or max_price is not None:
+                price_range = f"price ${min_price or 0:.2f} - ${max_price or 999999:.2f}"
+                filter_description.append(price_range)
+            if stock_tracked_only is not None:
+                filter_description.append(f"stock tracking: {'Yes' if stock_tracked_only else 'No'}")
+            if has_variants is not None:
+                filter_description.append(f"has variants: {'Yes' if has_variants else 'No'}")
+            if has_cost_data is not None:
+                filter_description.append(f"has cost data: {'Yes' if has_cost_data else 'No'}")
+            
+            filter_text = " and ".join(filter_description) if filter_description else "applied filters"
+            return [TextContent(type="text", text=f"📦 No products found matching {filter_text}.")]
         
         response = "🛍️ **PRODUCT CATALOG**\n"
+        
+        # Show applied filters
+        filters_applied = []
         if search_term:
-            response += f"Search: '{search_term}'\n"
+            filters_applied.append(f"Search: '{search_term}'")
+        if category_filter:
+            filters_applied.append(f"Category: '{category_filter}'")
+        if min_price is not None or max_price is not None:
+            price_range = f"Price: ${min_price or 0:.2f} - ${max_price or 999999:.2f}"
+            filters_applied.append(price_range)
+        if stock_tracked_only is not None:
+            filters_applied.append(f"Stock Tracking: {'Yes' if stock_tracked_only else 'No'}")
+        if has_variants is not None:
+            filters_applied.append(f"Has Variants: {'Yes' if has_variants else 'No'}")
+        if has_cost_data is not None:
+            filters_applied.append(f"Has Cost Data: {'Yes' if has_cost_data else 'No'}")
+        
+        if filters_applied:
+            response += f"🔍 **Filters Applied**: {' | '.join(filters_applied)}\n"
+        
         response += f"Found {len(products_data)} products\n\n"
         
         # Group products by category
@@ -715,6 +1128,110 @@ async def handle_get_sales_analytics(arguments: Dict[str, Any]) -> List[TextCont
             if len(sorted_products) > 1:
                 response += f"\n   💡 Fetched product details with rate limiting (~{RATE_LIMIT_DELAY:.1f}s between calls)\n"
         
+        # Enhanced Analytics - Promotion Analysis
+        promotion_stats = {"total_discount": 0, "transactions_with_promotions": 0, "promotion_types": {}}
+        for tx in completed_transactions:
+            tx_promotions = tx.get("promotions", [])
+            if tx_promotions:
+                promotion_stats["transactions_with_promotions"] += 1
+                for promo in tx_promotions:
+                    promo_name = promo.get("name", "Unknown Promotion")
+                    promo_discount = promo.get("discount", 0)
+                    promotion_stats["total_discount"] += promo_discount
+                    if promo_name in promotion_stats["promotion_types"]:
+                        promotion_stats["promotion_types"][promo_name]["count"] += 1
+                        promotion_stats["promotion_types"][promo_name]["total_discount"] += promo_discount
+                    else:
+                        promotion_stats["promotion_types"][promo_name] = {"count": 1, "total_discount": promo_discount}
+            
+            # Also check item-level promotions
+            for item in tx.get("items", []):
+                item_promotions = item.get("promotions", [])
+                for promo in item_promotions:
+                    promo_name = promo.get("name", "Unknown Item Promotion")
+                    promo_discount = promo.get("discount", 0)
+                    promotion_stats["total_discount"] += promo_discount
+                    if promo_name in promotion_stats["promotion_types"]:
+                        promotion_stats["promotion_types"][promo_name]["count"] += 1
+                        promotion_stats["promotion_types"][promo_name]["total_discount"] += promo_discount
+                    else:
+                        promotion_stats["promotion_types"][promo_name] = {"count": 1, "total_discount": promo_discount}
+        
+        if promotion_stats["total_discount"] > 0:
+            response += f"\n🎯 **PROMOTION ANALYSIS**\n"
+            response += f"   Total Promotions Discount: ${promotion_stats['total_discount']:.2f}\n"
+            response += f"   Transactions with Promotions: {promotion_stats['transactions_with_promotions']}\n"
+            response += f"   Promotion Usage Rate: {(promotion_stats['transactions_with_promotions']/len(completed_transactions)*100):.1f}%\n"
+            
+            if promotion_stats["promotion_types"]:
+                response += f"   **Top Promotions:**\n"
+                sorted_promos = sorted(promotion_stats["promotion_types"].items(), 
+                                     key=lambda x: x[1]["total_discount"], reverse=True)[:3]
+                for promo_name, stats in sorted_promos:
+                    response += f"     - {promo_name}: {stats['count']} uses, ${stats['total_discount']:.2f} discount\n"
+        
+        # Service Charge and Fee Analysis
+        service_charge_total = sum(tx.get("serviceCharge", 0) for tx in completed_transactions)
+        shipping_fee_total = sum(tx.get("shippingFee", 0) for tx in completed_transactions)
+        if service_charge_total > 0 or shipping_fee_total > 0:
+            response += f"\n💼 **FEES & CHARGES**\n"
+            if service_charge_total > 0:
+                response += f"   Total Service Charges: ${service_charge_total:.2f}\n"
+            if shipping_fee_total > 0:
+                response += f"   Total Shipping Fees: ${shipping_fee_total:.2f}\n"
+        
+        # Delivery Information Analysis
+        delivery_stats = {"delivery": 0, "pickup": 0, "dineIn": 0, "takeaway": 0}
+        delivery_revenue = {"delivery": 0, "pickup": 0, "dineIn": 0, "takeaway": 0}
+        for tx in completed_transactions:
+            shipping_type = tx.get("shippingType", "unknown")
+            delivery_stats[shipping_type] = delivery_stats.get(shipping_type, 0) + 1
+            delivery_revenue[shipping_type] = delivery_revenue.get(shipping_type, 0) + tx.get("total", 0)
+        
+        if any(count > 0 for count in delivery_stats.values()):
+            response += f"\n🚚 **DELIVERY & FULFILLMENT**\n"
+            for method, count in delivery_stats.items():
+                if count > 0:
+                    revenue = delivery_revenue[method]
+                    response += f"   {method.title()}: {count} orders, ${revenue:.2f}\n"
+        
+        # Return Analysis
+        return_transactions = [tx for tx in all_transactions if tx.get("transactionType") == "Return"]
+        if return_transactions:
+            return_revenue = sum(tx.get("total", 0) for tx in return_transactions)
+            return_reasons = {}
+            for tx in return_transactions:
+                reason = tx.get("returnReason", "No reason provided")
+                return_reasons[reason] = return_reasons.get(reason, 0) + 1
+            
+            response += f"\n↩️ **RETURNS ANALYSIS**\n"
+            response += f"   Total Returns: {len(return_transactions)}\n"
+            response += f"   Return Rate: {(len(return_transactions)/len(all_transactions)*100):.1f}%\n"
+            response += f"   Return Value: ${return_revenue:.2f}\n"
+            
+            if return_reasons:
+                response += f"   **Return Reasons:**\n"
+                for reason, count in return_reasons.items():
+                    response += f"     - {reason}: {count} returns\n"
+        
+        # Payment Method Analysis
+        payment_methods = {}
+        for tx in completed_transactions:
+            for payment in tx.get("payments", []):
+                method = payment.get("paymentMethod", "Unknown")
+                amount = payment.get("amount", 0)
+                if method in payment_methods:
+                    payment_methods[method]["count"] += 1
+                    payment_methods[method]["amount"] += amount
+                else:
+                    payment_methods[method] = {"count": 1, "amount": amount}
+        
+        if payment_methods:
+            response += f"\n💳 **PAYMENT METHODS**\n"
+            for method, stats in payment_methods.items():
+                percentage = (stats["amount"] / total_revenue * 100) if total_revenue > 0 else 0
+                response += f"   {method}: {stats['count']} transactions, ${stats['amount']:.2f} ({percentage:.1f}%)\n"
+        
         # Insights
         response += f"\n💡 **INSIGHTS**\n"
         if avg_order_value > 100:
@@ -742,20 +1259,45 @@ async def handle_get_customers(arguments: Dict[str, Any]) -> List[TextContent]:
     """Get customers using StoreHub API"""
     try:
         search_term = arguments.get("search_term", "")
+        first_name = arguments.get("firstName", "")
+        last_name = arguments.get("lastName", "")
+        email = arguments.get("email", "")
+        phone = arguments.get("phone", "")
         limit = min(arguments.get("limit", 10), 100)  # Cap at 100
         
-        if search_term:
-            # Use search API with query parameters
-            # StoreHub supports firstName, lastName, email, phone search
-            params = {}
+        # Build search parameters according to StoreHub API specification
+        params = {}
+        search_criteria = []
+        
+        # Use specific parameters if provided
+        if first_name:
+            params["firstName"] = first_name
+            search_criteria.append(f"firstName: '{first_name}'")
+        if last_name:
+            params["lastName"] = last_name
+            search_criteria.append(f"lastName: '{last_name}'")
+        if email:
+            params["email"] = email
+            search_criteria.append(f"email: '{email}'")
+        if phone:
+            params["phone"] = phone
+            search_criteria.append(f"phone: '{phone}'")
+        
+        # Fall back to general search term if no specific parameters
+        if search_term and not params:
             if "@" in search_term:
                 params["email"] = search_term
-            elif search_term.isdigit():
+                search_criteria.append(f"email: '{search_term}'")
+            elif search_term.replace("-", "").replace(" ", "").isdigit():
                 params["phone"] = search_term
+                search_criteria.append(f"phone: '{search_term}'")
             else:
-                # Try as first or last name
+                # Try as first name
                 params["firstName"] = search_term
-            
+                search_criteria.append(f"firstName: '{search_term}'")
+        
+        # Make API request
+        if params:
             customers_data = await make_api_request("/customers", params=params)
         else:
             # Get all customers
@@ -768,7 +1310,9 @@ async def handle_get_customers(arguments: Dict[str, Any]) -> List[TextContent]:
         customers_data = customers_data[:limit]
         
         response = f"👥 **CUSTOMERS**\n"
-        if search_term:
+        if search_criteria:
+            response += f"🔍 **Search Criteria**: {' | '.join(search_criteria)}\n"
+        elif search_term:
             response += f"Search: '{search_term}'\n"
         response += f"Showing {len(customers_data)} customers\n\n"
         
@@ -1215,6 +1759,407 @@ async def get_actual_store_id():
     except Exception as e:
         logger.error(f"Failed to fetch store ID: {e}")
         return None
+
+async def handle_create_online_transaction(arguments: Dict[str, Any]) -> List[TextContent]:
+    """Create online transaction using StoreHub API"""
+    try:
+        # Extract required parameters
+        ref_id = arguments.get("refId")
+        store_id = arguments.get("storeId")
+        channel = arguments.get("channel")
+        shipping_type = arguments.get("shippingType")
+        total = arguments.get("total")
+        subtotal = arguments.get("subTotal")
+        items = arguments.get("items", [])
+        
+        # Validate required fields
+        if not all([ref_id, store_id, channel, shipping_type, total, subtotal, items]):
+            return [TextContent(type="text", text="❌ Missing required fields: refId, storeId, channel, shippingType, total, subTotal, items")]
+        
+        # Build request body according to StoreHub Online Transaction API
+        transaction_data = {
+            "refId": ref_id,
+            "storeId": store_id,
+            "transactionTime": datetime.now().isoformat() + "Z",
+            "channel": channel,
+            "shippingType": shipping_type,
+            "total": total,
+            "subTotal": subtotal,
+            "discount": 0,
+            "items": items
+        }
+        
+        # Add optional fields
+        if arguments.get("customerRefId"):
+            transaction_data["customerRefId"] = arguments["customerRefId"]
+        
+        if arguments.get("deliveryAddress") and shipping_type == "delivery":
+            transaction_data["deliveryInformation"] = [{"address": arguments["deliveryAddress"]}]
+        
+        # Make API request
+        response_data = await make_api_request("/onlineTransactions", method="POST", data=transaction_data)
+        
+        response = f"🛒 **ONLINE TRANSACTION CREATED**\n\n"
+        response += f"✅ Transaction ID: {ref_id}\n"
+        response += f"🏪 Store: {store_id}\n" 
+        response += f"📱 Channel: {channel}\n"
+        response += f"🚚 Shipping: {shipping_type}\n"
+        response += f"💰 Total: ${total:.2f}\n"
+        response += f"📦 Items: {len(items)} products\n"
+        
+        if arguments.get("customerRefId"):
+            response += f"👤 Customer: {arguments['customerRefId']}\n"
+        
+        response += f"\n💡 **Status**: Successfully created online transaction\n"
+        response += f"⏰ **Time**: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n"
+        
+        return [TextContent(type="text", text=response)]
+        
+    except Exception as e:
+        return [TextContent(type="text", text=f"❌ Error creating online transaction: {str(e)}")]
+
+async def handle_cancel_online_transaction(arguments: Dict[str, Any]) -> List[TextContent]:
+    """Cancel online transaction using StoreHub API"""
+    try:
+        ref_id = arguments.get("refId")
+        if not ref_id:
+            return [TextContent(type="text", text="❌ Missing required field: refId")]
+        
+        # Build cancellation data
+        cancellation_data = {
+            "cancelledTime": arguments.get("cancelledTime", datetime.now().isoformat() + "Z")
+        }
+        
+        # Make API request
+        await make_api_request(f"/onlineTransactions/{ref_id}/cancel", method="POST", data=cancellation_data)
+        
+        response = f"🚫 **ONLINE TRANSACTION CANCELLED**\n\n"
+        response += f"Transaction ID: {ref_id}\n"
+        response += f"Cancelled Time: {cancellation_data['cancelledTime']}\n"
+        response += f"Status: Successfully cancelled\n"
+        
+        return [TextContent(type="text", text=response)]
+        
+    except Exception as e:
+        return [TextContent(type="text", text=f"❌ Error cancelling online transaction: {str(e)}")]
+
+async def handle_create_customer(arguments: Dict[str, Any]) -> List[TextContent]:
+    """Create customer using StoreHub API"""
+    try:
+        # Extract required parameters
+        ref_id = arguments.get("refId")
+        first_name = arguments.get("firstName")
+        last_name = arguments.get("lastName")
+        
+        if not all([ref_id, first_name, last_name]):
+            return [TextContent(type="text", text="❌ Missing required fields: refId, firstName, lastName")]
+        
+        # Build customer data
+        customer_data = {
+            "refId": ref_id,
+            "firstName": first_name,
+            "lastName": last_name,
+            "createdTime": datetime.now().isoformat() + "Z"
+        }
+        
+        # Add optional fields
+        optional_fields = ["email", "phone", "address1", "city", "state", "postalCode", "memberId", "tags"]
+        for field in optional_fields:
+            if arguments.get(field):
+                customer_data[field] = arguments[field]
+        
+        # Make API request
+        response_data = await make_api_request("/customers", method="POST", data=customer_data)
+        
+        response = f"👤 **CUSTOMER CREATED**\n\n"
+        response += f"✅ Customer ID: {ref_id}\n"
+        response += f"📝 Name: {first_name} {last_name}\n"
+        
+        if arguments.get("email"):
+            response += f"📧 Email: {arguments['email']}\n"
+        if arguments.get("phone"):
+            response += f"📱 Phone: {arguments['phone']}\n"
+        if arguments.get("memberId"):
+            response += f"🎫 Member ID: {arguments['memberId']}\n"
+        if arguments.get("tags"):
+            response += f"🏷️ Tags: {', '.join(arguments['tags'])}\n"
+        
+        response += f"\n💡 **Status**: Successfully created customer record\n"
+        
+        return [TextContent(type="text", text=response)]
+        
+    except Exception as e:
+        return [TextContent(type="text", text=f"❌ Error creating customer: {str(e)}")]
+
+async def handle_update_customer(arguments: Dict[str, Any]) -> List[TextContent]:
+    """Update customer using StoreHub API"""
+    try:
+        ref_id = arguments.get("refId")
+        first_name = arguments.get("firstName")
+        last_name = arguments.get("lastName")
+        
+        if not all([ref_id, first_name, last_name]):
+            return [TextContent(type="text", text="❌ Missing required fields: refId, firstName, lastName")]
+        
+        # Build update data
+        update_data = {
+            "firstName": first_name,
+            "lastName": last_name,
+            "modifiedTime": datetime.now().isoformat() + "Z"
+        }
+        
+        # Add optional fields
+        optional_fields = ["email", "phone", "address1", "city", "state", "postalCode", "tags"]
+        for field in optional_fields:
+            if arguments.get(field):
+                update_data[field] = arguments[field]
+        
+        # Make API request
+        response_data = await make_api_request(f"/customers/{ref_id}", method="PUT", data=update_data)
+        
+        response = f"👤 **CUSTOMER UPDATED**\n\n"
+        response += f"✅ Customer ID: {ref_id}\n"
+        response += f"📝 Updated Name: {first_name} {last_name}\n"
+        
+        updated_fields = []
+        for field in optional_fields:
+            if arguments.get(field):
+                updated_fields.append(field)
+        
+        if updated_fields:
+            response += f"🔄 Updated Fields: {', '.join(updated_fields)}\n"
+        
+        response += f"\n💡 **Status**: Successfully updated customer record\n"
+        
+        return [TextContent(type="text", text=response)]
+        
+    except Exception as e:
+        return [TextContent(type="text", text=f"❌ Error updating customer: {str(e)}")]
+
+async def handle_get_customer_by_id(arguments: Dict[str, Any]) -> List[TextContent]:
+    """Get customer by ID using StoreHub API"""
+    try:
+        ref_id = arguments.get("refId")
+        if not ref_id:
+            return [TextContent(type="text", text="❌ Missing required field: refId")]
+        
+        # Make API request
+        customer_data = await make_api_request(f"/customers/{ref_id}")
+        
+        response = f"👤 **CUSTOMER DETAILS**\n\n"
+        response += f"ID: {customer_data.get('refId', 'N/A')}\n"
+        
+        first_name = customer_data.get("firstName", "")
+        last_name = customer_data.get("lastName", "")
+        response += f"📝 Name: {first_name} {last_name}\n"
+        
+        if customer_data.get("email"):
+            response += f"📧 Email: {customer_data['email']}\n"
+        if customer_data.get("phone"):
+            response += f"📱 Phone: {customer_data['phone']}\n"
+        if customer_data.get("memberId"):
+            response += f"🎫 Member ID: {customer_data['memberId']}\n"
+        
+        # Address information
+        address_parts = []
+        if customer_data.get("address1"):
+            address_parts.append(customer_data["address1"])
+        if customer_data.get("city"):
+            address_parts.append(customer_data["city"])
+        if customer_data.get("state"):
+            address_parts.append(customer_data["state"])
+        if customer_data.get("postalCode"):
+            address_parts.append(customer_data["postalCode"])
+        
+        if address_parts:
+            response += f"📍 Address: {', '.join(address_parts)}\n"
+        
+        # Loyalty information
+        if customer_data.get("storeCreditsBalance"):
+            response += f"💰 Store Credit: ${customer_data['storeCreditsBalance']:.2f}\n"
+        if customer_data.get("cashbackBalance"):
+            response += f"🎁 Cashback: ${customer_data['cashbackBalance']:.2f}\n"
+        
+        if customer_data.get("tags"):
+            response += f"🏷️ Tags: {', '.join(customer_data['tags'])}\n"
+        
+        # Timestamps
+        if customer_data.get("createdTime"):
+            created_date = customer_data["createdTime"].split("T")[0]
+            response += f"📅 Customer Since: {created_date}\n"
+        
+        return [TextContent(type="text", text=response)]
+        
+    except Exception as e:
+        return [TextContent(type="text", text=f"❌ Error retrieving customer: {str(e)}")]
+
+async def handle_get_product_by_id(arguments: Dict[str, Any]) -> List[TextContent]:
+    """Get product by ID using StoreHub API"""
+    try:
+        product_id = arguments.get("productId")
+        if not product_id:
+            return [TextContent(type="text", text="❌ Missing required field: productId")]
+        
+        # Make API request
+        product_data = await make_api_request(f"/products/{product_id}")
+        
+        response = f"🛍️ **PRODUCT DETAILS**\n\n"
+        
+        # Basic information
+        response += f"ID: {product_data.get('id', 'N/A')}\n"
+        response += f"📝 Name: {product_data.get('name', 'Unknown Product')}\n"
+        response += f"🏷️ SKU: {product_data.get('sku', 'N/A')}\n"
+        
+        if product_data.get("barcode"):
+            response += f"📊 Barcode: {product_data['barcode']}\n"
+        
+        response += f"📂 Category: {product_data.get('category', 'Uncategorized')}\n"
+        
+        if product_data.get("subCategory"):
+            response += f"📁 Subcategory: {product_data['subCategory']}\n"
+        
+        # Pricing information
+        price = product_data.get("unitPrice", 0)
+        price_type = product_data.get("priceType", "Fixed")
+        cost = product_data.get("cost")
+        
+        if price_type == "Fixed":
+            response += f"💰 Price: ${price:.2f}\n"
+        else:
+            response += f"💰 Price: Variable (base: ${price:.2f})\n"
+        
+        if cost is not None:
+            response += f"💵 Cost: ${cost:.2f}\n"
+            if price > 0 and cost > 0:
+                margin = ((price - cost) / price) * 100
+                response += f"📈 Margin: {margin:.1f}%\n"
+        
+        # Product flags
+        track_stock = product_data.get("trackStockLevel", False)
+        response += f"📦 Stock Tracking: {'Yes' if track_stock else 'No'}\n"
+        
+        is_parent = product_data.get("isParentProduct", False)
+        if is_parent:
+            response += f"🔄 Type: Parent Product (has variants)\n"
+            variant_groups = product_data.get("variantGroups", [])
+            if variant_groups:
+                response += f"📋 Variant Groups:\n"
+                for vg in variant_groups:
+                    vg_name = vg.get("name", "Unknown")
+                    options = vg.get("options", [])
+                    option_values = [opt.get("optionValue", "") for opt in options]
+                    response += f"   - {vg_name}: {', '.join(option_values)}\n"
+        
+        # Child product variant values
+        variant_values = product_data.get("variantValues", [])
+        if variant_values:
+            response += f"🔗 Variant Values:\n"
+            for vv in variant_values:
+                value = vv.get("value", "")
+                response += f"   - {value}\n"
+        
+        # Parent product reference
+        parent_product_id = product_data.get("parentProductId", "")
+        if parent_product_id:
+            response += f"👆 Parent Product ID: {parent_product_id}\n"
+        
+        # Tags
+        if product_data.get("tags"):
+            response += f"🏷️ Tags: {', '.join(product_data['tags'])}\n"
+        
+        return [TextContent(type="text", text=response)]
+        
+    except Exception as e:
+        return [TextContent(type="text", text=f"❌ Error retrieving product: {str(e)}")]
+
+async def handle_create_transaction(arguments: Dict[str, Any]) -> List[TextContent]:
+    """Create transaction using StoreHub API"""
+    try:
+        # Extract required parameters
+        ref_id = arguments.get("refId")
+        store_id = arguments.get("storeId")
+        transaction_type = arguments.get("transactionType")
+        total = arguments.get("total")
+        subtotal = arguments.get("subTotal")
+        payment_method = arguments.get("paymentMethod")
+        items = arguments.get("items", [])
+        
+        if not all([ref_id, store_id, transaction_type, total, subtotal, payment_method, items]):
+            return [TextContent(type="text", text="❌ Missing required fields: refId, storeId, transactionType, total, subTotal, paymentMethod, items")]
+        
+        # Build transaction data
+        transaction_data = {
+            "refId": ref_id,
+            "storeId": store_id,
+            "transactionType": transaction_type,
+            "transactionTime": datetime.now().isoformat() + "Z",
+            "paymentMethod": payment_method,
+            "total": total,
+            "subTotal": subtotal,
+            "discount": 0,
+            "items": items
+        }
+        
+        # Add optional fields
+        if arguments.get("customerRefId"):
+            transaction_data["customerRefId"] = arguments["customerRefId"]
+        if arguments.get("employeeId"):
+            transaction_data["employeeId"] = arguments["employeeId"]
+        
+        # Make API request
+        response_data = await make_api_request("/transactions", method="POST", data=transaction_data)
+        
+        response = f"💳 **TRANSACTION CREATED**\n\n"
+        response += f"✅ Transaction ID: {ref_id}\n"
+        response += f"🏪 Store: {store_id}\n"
+        response += f"📝 Type: {transaction_type}\n"
+        response += f"💰 Total: ${total:.2f}\n"
+        response += f"💳 Payment: {payment_method}\n"
+        response += f"📦 Items: {len(items)} products\n"
+        
+        if arguments.get("customerRefId"):
+            response += f"👤 Customer: {arguments['customerRefId']}\n"
+        if arguments.get("employeeId"):
+            response += f"👨‍💼 Employee: {arguments['employeeId']}\n"
+        
+        response += f"\n💡 **Status**: Successfully created {transaction_type.lower()} transaction\n"
+        
+        return [TextContent(type="text", text=response)]
+        
+    except Exception as e:
+        return [TextContent(type="text", text=f"❌ Error creating transaction: {str(e)}")]
+
+async def handle_cancel_transaction(arguments: Dict[str, Any]) -> List[TextContent]:
+    """Cancel transaction using StoreHub API"""
+    try:
+        ref_id = arguments.get("refId")
+        if not ref_id:
+            return [TextContent(type="text", text="❌ Missing required field: refId")]
+        
+        # Build cancellation data
+        cancellation_data = {
+            "cancelledTime": arguments.get("cancelledTime", datetime.now().isoformat() + "Z")
+        }
+        
+        if arguments.get("cancelledBy"):
+            cancellation_data["cancelledBy"] = arguments["cancelledBy"]
+        
+        # Make API request
+        await make_api_request(f"/transactions/{ref_id}/cancel", method="POST", data=cancellation_data)
+        
+        response = f"🚫 **TRANSACTION CANCELLED**\n\n"
+        response += f"Transaction ID: {ref_id}\n"
+        response += f"Cancelled Time: {cancellation_data['cancelledTime']}\n"
+        
+        if arguments.get("cancelledBy"):
+            response += f"Cancelled By: {arguments['cancelledBy']}\n"
+        
+        response += f"Status: Successfully cancelled\n"
+        
+        return [TextContent(type="text", text=response)]
+        
+    except Exception as e:
+        return [TextContent(type="text", text=f"❌ Error cancelling transaction: {str(e)}")]
 
 async def main():
     """Main function to run the MCP server"""
