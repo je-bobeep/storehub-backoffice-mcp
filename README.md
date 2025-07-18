@@ -95,7 +95,9 @@ Configure Claude to use this MCP server by adding the configuration to your Clau
       "args": ["/path/to/your/storehub-backoffice-mcp/storehub-mcp-server/main.py"],
       "cwd": "/path/to/your/storehub-backoffice-mcp/storehub-mcp-server",
       "env": {
-        "PYTHONPATH": "/path/to/your/storehub-backoffice-mcp/storehub-mcp-server"
+        "PYTHONPATH": "/path/to/your/storehub-backoffice-mcp/storehub-mcp-server",
+        "STOREHUB_API_KEY": "your_actual_api_key_here",
+        "STOREHUB_ACCOUNT_ID": "your_actual_account_id_here"
       }
     }
   }
