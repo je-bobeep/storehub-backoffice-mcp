@@ -116,9 +116,12 @@ Once integrated with Claude, you can ask natural language questions like:
 - "Get inventory summary with reorder recommendations"
 
 ### Product Catalog
-- "Show me all products in the catalog"
-- "Find products with 'iPhone' in the name"
-- "Display product details with pricing and variants"
+- "Show me all products in the catalog with complete details"
+- "Find products with 'iPhone' in the name or barcode"
+- "Display product details with pricing, costs, and profit margins"
+- "Show me all parent products with their variant options"
+- "Get product information including barcodes and subcategories"
+- "Calculate profit margins for products with cost data"
 
 ### Sales Analytics
 - "Get sales analytics for the past week"
@@ -146,13 +149,45 @@ Once integrated with Claude, you can ask natural language questions like:
 - "Search timesheets for a date range"
 - "Calculate total hours worked by employee"
 
+## 🛍️ Enhanced Product Catalog
+
+The MCP server now provides **comprehensive product information** aligned with the complete StoreHub API Product Schema:
+
+### ✅ Complete Product Information Display
+- **Basic Info**: Product ID, name, SKU, barcode, category, subcategory
+- **Pricing**: Unit price, cost, calculated profit margins
+- **Product Types**: Fixed vs Variable pricing, stock tracking status
+- **Variant Details**: 
+  - **Parent Products**: Full variant groups with all available options
+  - **Child Products**: Variant values and parent product relationships
+- **Tags**: All product tags and classifications
+- **Enhanced Search**: Now includes barcode filtering
+
+### 📊 Comprehensive Statistics
+- Total products in catalog
+- Stock tracked products
+- Parent products (with variants)
+- Child products (variants)
+- Products with barcodes
+- Products with cost data
+- Variable pricing products
+- Category breakdown
+
+### 🎯 Key Business Intelligence Features
+- **💰 Profit Margin Calculation**: Automatically calculates and displays margins when both price and cost are available
+- **🔄 Complete Variant Support**: 
+  - Shows variant groups and options for parent products
+  - Displays variant values and parent relationships for child products
+- **🔍 Enhanced Search**: Search now works across names, SKUs, AND barcodes
+- **📈 Better Business Insights**: Cost data and margins provide valuable business intelligence
+
 ## ✅ Real-Time API Integration
 
 The MCP server is now **fully integrated** with live StoreHub APIs! Features include:
 
 ### 🔌 Live Data Sources
 - **Inventory API** (`/inventory/{storeId}`) - Real-time stock levels and alerts
-- **Products API** (`/products`) - Complete product catalog with variants
+- **Products API** (`/products`) - Comprehensive product catalog with complete schema: IDs, barcodes, costs, margins, variants, and tags
 - **Transactions API** (`/transactions`) - Sales data and analytics  
 - **Customers API** (`/customers`) - Customer information and search
 - **Stores API** (`/stores`) - Store configuration details
@@ -169,7 +204,7 @@ The MCP server is now **fully integrated** with live StoreHub APIs! Features inc
 - Live inventory levels with stock alerts
 - Actual sales data and transaction analytics
 - Real customer information and search
-- Current product catalog with pricing
+- **Enhanced product catalog with complete details**: pricing, costs, margins, barcodes, variants, and business intelligence
 - Store configuration and details
 - Complete employee directory with contact information
 - Real-time timesheet tracking and hours calculation
@@ -209,10 +244,17 @@ Get current inventory levels for all products with stock alerts and recommendati
 **Parameters:** None required - returns all inventory data
 
 ### `get_products`
-Get complete product catalog with details, pricing, and variants.
+Get comprehensive product catalog with complete details including IDs, names, SKUs, barcodes, categories, subcategories, pricing, costs, margins, stock tracking, variant information, and tags.
 
 **Parameters:**
-- `search_term` (string, optional): Filter products by name or SKU
+- `search_term` (string, optional): Filter products by name, SKU, or barcode
+
+**Enhanced Features:**
+- Complete StoreHub API Product Schema alignment
+- Profit margin calculation when cost data available
+- Full variant group details for parent products
+- Variant value relationships for child products
+- Comprehensive business intelligence statistics
 
 ### `get_sales_analytics`
 Get comprehensive sales analytics and transaction data for specified periods.
