@@ -247,46 +247,7 @@ Search timesheet records for employees with filtering options for store, employe
 - `from_date` (string, optional): Start date in YYYY-MM-DD format to search clock-in records after this time
 - `to_date` (string, optional): End date in YYYY-MM-DD format to search clock-in records before this time
 
-## ⚠️ **IMPORTANT SECURITY NOTE**
 
-**NEVER commit your actual API credentials to version control!**
-
-The included `claude-config.json` file is excluded from version control for security. You must:
-
-1. Configure your credentials via environment variables (.env file)
-2. Update Claude configuration paths to match your local system
-3. Never commit files containing real API keys or credentials
-
-### Local Configuration Steps
-
-1. **Copy and edit the environment template:**
-   ```bash
-   cd storehub-mcp-server
-   cp .env.template .env
-   nano .env  # Add your real credentials here
-   ```
-
-2. **Update `claude-config.json` paths for your system:**
-   ```bash
-   # Edit claude-config.json and update paths to match your local setup
-   nano claude-config.json
-   ```
-
-3. **Example claude-config.json structure:**
-   ```json
-   {
-     "mcpServers": {
-       "storehub": {
-         "command": "/path/to/your/storehub-backoffice-mcp/storehub-mcp-server/venv/bin/python3",
-         "args": ["/path/to/your/storehub-backoffice-mcp/storehub-mcp-server/main.py"],
-         "cwd": "/path/to/your/storehub-backoffice-mcp/storehub-mcp-server",
-         "env": {
-           "PYTHONPATH": "/path/to/your/storehub-backoffice-mcp/storehub-mcp-server"
-         }
-       }
-     }
-   }
-   ```
 
 ## 🔒 Security & Configuration
 
