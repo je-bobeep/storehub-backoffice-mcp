@@ -202,13 +202,13 @@ async def list_tools() -> List[Tool]:
         ),
         Tool(
             name="get_products",
-            description="Get all products with details including names, SKUs, prices, categories, and variants.",
+            description="Get comprehensive product catalog with complete details including IDs, names, SKUs, barcodes, categories, subcategories, pricing, costs, margins, stock tracking, variant information, and tags.",
             inputSchema={
                 "type": "object",
                 "properties": {
                     "search_term": {
                         "type": "string",
-                        "description": "Optional search term to filter products by name or SKU"
+                        "description": "Optional search term to filter products by name, SKU, or barcode"
                     }
                 },
                 "additionalProperties": False
@@ -435,7 +435,8 @@ async def handle_get_products(arguments: Dict[str, Any]) -> List[TextContent]:
             for product in products_data:
                 name = product.get("name", "").lower()
                 sku = product.get("sku", "").lower()
-                if search_term in name or search_term in sku:
+                barcode = product.get("barcode", "").lower()
+                if search_term in name or search_term in sku or search_term in barcode:
                     filtered_products.append(product)
             products_data = filtered_products
         
@@ -459,37 +460,94 @@ async def handle_get_products(arguments: Dict[str, Any]) -> List[TextContent]:
             response += f"📂 **{category}**\n"
             
             for product in products:
+                # Basic product information
+                product_id = product.get("id", "N/A")
                 name = product.get("name", "Unknown Product")
                 sku = product.get("sku", "N/A")
+                barcode = product.get("barcode", "")
+                sub_category = product.get("subCategory", "")
+                
+                # Pricing information
                 price = product.get("unitPrice", 0)
                 price_type = product.get("priceType", "Fixed")
+                cost = product.get("cost")
+                
+                # Product flags
                 track_stock = product.get("trackStockLevel", False)
                 is_parent = product.get("isParentProduct", False)
                 
+                # Tags
+                tags = product.get("tags", [])
+                
+                # Variant information
+                variant_groups = product.get("variantGroups", [])
+                variant_values = product.get("variantValues", [])
+                parent_product_id = product.get("parentProductId", "")
+                
                 response += f"   • **{name}** ({sku})\n"
+                response += f"     ID: {product_id}\n"
+                
+                if barcode:
+                    response += f"     Barcode: {barcode}\n"
+                
+                if sub_category:
+                    response += f"     Subcategory: {sub_category}\n"
+                
+                # Price information
                 if price_type == "Fixed":
                     response += f"     Price: ${price:.2f}\n"
                 else:
                     response += f"     Price: Variable (base: ${price:.2f})\n"
+                
+                if cost is not None:
+                    response += f"     Cost: ${cost:.2f}\n"
+                    if price > 0 and cost > 0:
+                        margin = ((price - cost) / price) * 100
+                        response += f"     Margin: {margin:.1f}%\n"
+                
                 response += f"     Stock Tracking: {'Yes' if track_stock else 'No'}\n"
                 
-                if is_parent:
+                # Variant information
+                if is_parent and variant_groups:
                     response += f"     Type: Parent Product (has variants)\n"
+                    response += f"     Variant Groups:\n"
+                    for vg in variant_groups:
+                        vg_name = vg.get("name", "Unknown")
+                        options = vg.get("options", [])
+                        option_values = [opt.get("optionValue", "") for opt in options]
+                        response += f"       - {vg_name}: {', '.join(option_values)}\n"
+                elif variant_values:
+                    response += f"     Type: Child Product\n"
+                    if parent_product_id:
+                        response += f"     Parent Product ID: {parent_product_id}\n"
+                    response += f"     Variants:\n"
+                    for vv in variant_values:
+                        vg_id = vv.get("variantGroupId", "")
+                        value = vv.get("value", "")
+                        response += f"       - {value}\n"
                 
-                if product.get("tags"):
-                    response += f"     Tags: {', '.join(product['tags'])}\n"
+                if tags:
+                    response += f"     Tags: {', '.join(tags)}\n"
                 
                 response += "\n"
         
-        # Add summary
+        # Enhanced summary with more statistics
         total_products = len(products_data)
         tracked_products = len([p for p in products_data if p.get("trackStockLevel")])
         parent_products = len([p for p in products_data if p.get("isParentProduct")])
+        child_products = len([p for p in products_data if p.get("parentProductId")])
+        with_barcode = len([p for p in products_data if p.get("barcode")])
+        with_cost = len([p for p in products_data if p.get("cost") is not None])
+        variable_price = len([p for p in products_data if p.get("priceType") == "Variable"])
         
         response += f"📊 **SUMMARY**\n"
         response += f"   Total Products: {total_products}\n"
         response += f"   Stock Tracked: {tracked_products}\n"
-        response += f"   With Variants: {parent_products}\n"
+        response += f"   Parent Products (with variants): {parent_products}\n"
+        response += f"   Child Products (variants): {child_products}\n"
+        response += f"   With Barcode: {with_barcode}\n"
+        response += f"   With Cost Data: {with_cost}\n"
+        response += f"   Variable Pricing: {variable_price}\n"
         response += f"   Categories: {len(categories)}\n"
         
         return [TextContent(type="text", text=response)]
